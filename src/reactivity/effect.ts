@@ -7,7 +7,7 @@ class ReactiveEffect {
 
     run() {
         activeEffect = this
-        this._fn()
+        return this._fn()
     }
 }
 
@@ -47,4 +47,5 @@ export function effect(fn) {
     const _effect = new ReactiveEffect(fn)
     //将effect收集的依赖封装到 reactiveeffect 类的run方法中
     _effect.run()
+    return _effect.run.bind(_effect)
 }

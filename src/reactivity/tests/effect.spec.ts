@@ -1,5 +1,6 @@
 import {reactive} from "../reactive";
 import {effect} from "../effect";
+import {run} from "jest";
 
 describe('effect', () => {
     it('happy path', () => {
@@ -15,4 +16,16 @@ describe('effect', () => {
         user.age += 1
         expect(nextAge).toBe(12)
     })
+
+    it('should return runner when call effect', () => {
+        let foo = 10
+        const runner = effect(() => {
+            foo+=1
+            return 'foo'
+        })
+        expect(foo).toBe(11)
+        const r = runner()
+        expect(foo).toBe(12)
+        expect(r).toBe('foo')
+    });
 })
