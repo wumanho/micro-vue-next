@@ -1,5 +1,5 @@
 import {reactive} from "../reactive";
-import {effect} from "../effect";
+import {effect, stop} from "../effect";
 import {run} from "jest";
 
 describe('effect', () => {
@@ -53,4 +53,33 @@ describe('effect', () => {
         //更新了
         expect(dummy).toBe(2)
     });
+    it('stop', () => {
+        let dummy
+        const obj = reactive({prop: 1})
+        const runner = effect(() => {
+            dummy = obj.prop
+        })
+        obj.prop = 2
+        expect(dummy).toBe(2)
+        stop(runner)
+        //trigger失效
+        obj.prop = 3
+        expect(dummy).toBe(2)
+        //即使stop了，还是可以手动调用
+        runner()
+        expect(dummy).toBe(3)
+    });
+    it('should have more than one deps', () => {
+        const obj = reactive({foo: 1, bar: 2})
+        let dummy
+        let mommy
+        const runner1 = effect(() => {
+            dummy = obj.foo
+        })
+        const runner2 = effect(() => {
+            mommy = obj.bar
+        })
+        expect(dummy).toBe(1)
+        expect(mommy).toBe(2)
+    })
 })
