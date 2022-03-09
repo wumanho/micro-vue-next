@@ -1,8 +1,10 @@
 class ReactiveEffect {
     private readonly _fn: any
+    public scheduler?: any
 
-    constructor(fn) {
+    constructor(fn, scheduler) {
         this._fn = fn
+        this.scheduler = scheduler
     }
 
     run() {
@@ -36,15 +38,20 @@ export function trigger(target, key) {
     let depsMap = targetMap.get(target)
     let dep = depsMap.get(key)
     for (const effect of dep) {
-        effect.run()
+        if (effect.scheduler) {
+            effect.scheduler()
+        } else {
+            effect.run()
+        }
     }
 }
 
 //全局容器，用于保存当前的effect方法
 let activeEffect
 
-export function effect(fn) {
-    const _effect = new ReactiveEffect(fn)
+export function effect(fn, options: any = {}) {
+    const {scheduler} = options
+    const _effect = new ReactiveEffect(fn, scheduler)
     //将effect收集的依赖封装到 reactiveeffect 类的run方法中
     _effect.run()
     return _effect.run.bind(_effect)
