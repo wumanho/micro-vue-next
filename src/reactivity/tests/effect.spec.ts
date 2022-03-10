@@ -69,17 +69,16 @@ describe('effect', () => {
         runner()
         expect(dummy).toBe(3)
     });
-    it('should have more than one deps', () => {
-        const obj = reactive({foo: 1, bar: 2})
+    it('onStop', () => {
+        const obj = reactive({
+            foo: 1
+        })
+        const onStop = jest.fn()
         let dummy
-        let mommy
-        const runner1 = effect(() => {
+        const runner = effect(()=>{
             dummy = obj.foo
-        })
-        const runner2 = effect(() => {
-            mommy = obj.bar
-        })
-        expect(dummy).toBe(1)
-        expect(mommy).toBe(2)
-    })
+        },{onStop})
+        stop(runner)
+        expect(onStop).toBeCalledTimes(1)
+    });
 })

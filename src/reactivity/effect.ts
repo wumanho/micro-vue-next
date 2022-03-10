@@ -1,12 +1,14 @@
+import {extend} from "../shared";
+
 class ReactiveEffect {
     private readonly _fn: any
     public scheduler?: any
     deps = []
     active = true
+    onStop?: () => void
 
-    constructor(fn, scheduler) {
+    constructor(fn) {
         this._fn = fn
-        this.scheduler = scheduler
     }
 
     run() {
@@ -15,16 +17,22 @@ class ReactiveEffect {
     }
 
     stop() {
+        // stop()会清除所有effect
+        // 所以只要清空过一次，就可以将 active 设置为 false 了
         if (this.active) {
-          cleanUpEffect(this)
+            cleanUpEffect(this)
+            //onStop回调
+            if (this.onStop) {
+                this.onStop()
+            }
             this.active = false
         }
     }
 }
 
-function cleanUpEffect(efffect) {
-    efffect.deps.forEach((dep: any) => {
-        dep.delete(efffect)
+function cleanUpEffect(effect) {
+    effect.deps.forEach((dep: any) => {
+        dep.delete(effect)
     })
 }
 
@@ -44,6 +52,7 @@ export function track(target, key) {
         dep = new Set()
         depsMap.set(key, dep)
     }
+    if (!activeEffect) return
     dep.add(activeEffect)
     activeEffect.deps.push(dep)
 }
@@ -65,9 +74,13 @@ export function trigger(target, key) {
 //全局容器，用于保存当前的effect方法
 let activeEffect
 
-export function effect(fn, options: any = {}) {
-    const {scheduler} = options
-    const _effect = new ReactiveEffect(fn, scheduler)
+export function effect(fn, options?: any) {
+    // const {scheduler} = options
+    const _effect = new ReactiveEffect(fn)
+    //将options直接挂载到_effect
+    if (options) {
+        extend(_effect, options)
+    }
     //将effect收集的依赖封装到 reactiveeffect 类的run方法中
     _effect.run()
     const runner: any = _effect.run.bind(_effect)
