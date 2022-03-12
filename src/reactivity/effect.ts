@@ -77,7 +77,7 @@ let activeEffect
 export function effect(fn, options?: any) {
     // const {scheduler} = options
     const _effect = new ReactiveEffect(fn)
-    //将options直接挂载到_effect
+    //将 options 直接挂载到_effect
     if (options) {
         extend(_effect, options)
     }

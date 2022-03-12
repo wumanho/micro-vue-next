@@ -1,4 +1,5 @@
 import {track, trigger} from "./effect";
+import {isReactive} from "./reactive";
 
 //get 和 set 只需要初始化一次即可
 const get = createGetter(false)
@@ -7,6 +8,8 @@ const readOnlyGet = createGetter(true)
 
 function createGetter(isReadonly: boolean) {
     return function (target, key) {
+        //实现 isReactive 方法
+        if (key === 'is_reactive') return !isReadonly
         //target = 原始对象raw，key就是用户访问的那个key
         const res = Reflect.get(target, key)
         if (!isReadonly) {
