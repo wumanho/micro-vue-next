@@ -1,5 +1,5 @@
 import {track, trigger} from "./effect";
-import {isReactive} from "./reactive";
+import {ReactiveFlag} from "./reactive";
 
 //get 和 set 只需要初始化一次即可
 const get = createGetter(false)
@@ -9,7 +9,11 @@ const readOnlyGet = createGetter(true)
 function createGetter(isReadonly: boolean) {
     return function (target, key) {
         //实现 isReactive 方法
-        if (key === 'is_reactive') return !isReadonly
+        if (key === ReactiveFlag.IS_REACTIVE) {
+            return !isReadonly
+        } else if (key === ReactiveFlag.IS_READONLY) {  //实现 isReadonly 方法
+            return isReadonly
+        }
         //target = 原始对象raw，key就是用户访问的那个key
         const res = Reflect.get(target, key)
         if (!isReadonly) {
