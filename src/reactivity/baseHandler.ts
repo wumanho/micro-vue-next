@@ -9,8 +9,11 @@ const readOnlyGet = createGetter(true)
 function createGetter(isReadonly: boolean) {
     return function (target, key) {
         //实现 isReactive 方法
-        if (key === ReactiveFlag.IS_REACTIVE) return !isReadonly
-        if (key === ReactiveFlag.IS_READONLY) return isReadonly
+        if (key === ReactiveFlag.IS_REACTIVE) {
+            return !isReadonly
+        } else if (key === ReactiveFlag.IS_READONLY) {
+            return isReadonly
+        }
         //target = 原始对象raw，key就是用户访问的那个key
         const res = Reflect.get(target, key)
         if (!isReadonly) {

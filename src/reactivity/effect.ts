@@ -1,5 +1,9 @@
 import {extend} from "../shared";
 
+//全局容器，用于保存当前的effect方法
+let activeEffect: any
+let shouldTrack: boolean
+
 class ReactiveEffect {
     private readonly _fn: any
     public scheduler?: any
@@ -13,7 +17,14 @@ class ReactiveEffect {
 
     run() {
         activeEffect = this
-        return this._fn()
+        if (!this.active) {
+            return this._fn()
+        }
+        //如果不是stop状态，就要维护一下shouldTrack开关
+        shouldTrack = true
+        const result = this._fn()
+        shouldTrack = false
+        return result
     }
 
     stop() {
@@ -34,12 +45,15 @@ function cleanUpEffect(effect) {
     effect.deps.forEach((dep: any) => {
         dep.delete(effect)
     })
+    effect.deps.length = 0
 }
 
 // Map<target,depsMap>
 let targetMap = new Map()
 
 export function track(target, key) {
+    //如果shouldTrack为false的话，就不应该再走收集依赖
+    if (!isTracking()) return
     //依赖收集的对应关系 target -> keys -> dep
     let depsMap = targetMap.get(target)
     //处理初始化
@@ -52,9 +66,14 @@ export function track(target, key) {
         dep = new Set()
         depsMap.set(key, dep)
     }
-    if (!activeEffect) return
+    //不再重复收集
+    if (dep.has(activeEffect)) return
     dep.add(activeEffect)
     activeEffect.deps.push(dep)
+}
+
+function isTracking(): boolean {
+    return shouldTrack && activeEffect !== undefined
 }
 
 export function trigger(target, key) {
@@ -70,9 +89,6 @@ export function trigger(target, key) {
         }
     }
 }
-
-//全局容器，用于保存当前的effect方法
-let activeEffect
 
 export function effect(fn, options?: any) {
     // const {scheduler} = options

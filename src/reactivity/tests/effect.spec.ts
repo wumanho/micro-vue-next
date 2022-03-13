@@ -63,7 +63,8 @@ describe('effect', () => {
         expect(dummy).toBe(2)
         stop(runner)
         //trigger失效
-        obj.prop = 3
+        // obj.prop = 3
+        obj.prop++
         expect(dummy).toBe(2)
         //即使stop了，还是可以手动调用
         runner()
@@ -75,9 +76,9 @@ describe('effect', () => {
         })
         const onStop = jest.fn()
         let dummy
-        const runner = effect(()=>{
+        const runner = effect(() => {
             dummy = obj.foo
-        },{onStop})
+        }, {onStop})
         stop(runner)
         expect(onStop).toBeCalledTimes(1)
     });
