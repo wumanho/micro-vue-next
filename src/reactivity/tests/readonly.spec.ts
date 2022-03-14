@@ -6,6 +6,7 @@ describe("readonly", () => {
         const wrapped = readonly(original)
         expect(wrapped).not.toBe(original)
         expect(isReadonly(wrapped)).toBe(true)
+        expect(isReadonly(wrapped.bar)).toBe(true)
         expect(wrapped.foo).toBe(1)
     })
     it('should throw a warning when call set as realonly', () => {

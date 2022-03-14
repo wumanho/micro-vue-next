@@ -1,5 +1,6 @@
 import {track, trigger} from "./effect";
-import {ReactiveFlag} from "./reactive";
+import {reactive, ReactiveFlag, readonly} from "./reactive";
+import {isObject} from "../shared";
 
 //get 和 set 只需要初始化一次即可
 const get = createGetter(false)
@@ -16,6 +17,10 @@ function createGetter(isReadonly: boolean) {
         }
         //target = 原始对象raw，key就是用户访问的那个key
         const res = Reflect.get(target, key)
+        //如果是 object 的话，将返回的对象也设置为代理
+        if (isObject(res)) {
+            return isReadonly ? readonly(res) : reactive(res)
+        }
         if (!isReadonly) {
             //依赖收集
             track(target, key)

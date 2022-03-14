@@ -72,6 +72,7 @@ export function track(target, key) {
     activeEffect.deps.push(dep)
 }
 
+//语义化方法抽取
 function isTracking(): boolean {
     return shouldTrack && activeEffect !== undefined
 }
