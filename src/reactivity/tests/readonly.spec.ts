@@ -1,4 +1,4 @@
-import {isReadonly, readonly} from "../reactive";
+import {isReadonly, readonly,isProxy} from "../reactive";
 
 describe("readonly", () => {
     it("should be readonly", () => {
@@ -7,6 +7,7 @@ describe("readonly", () => {
         expect(wrapped).not.toBe(original)
         expect(isReadonly(wrapped)).toBe(true)
         expect(isReadonly(wrapped.bar)).toBe(true)
+        expect(isProxy(wrapped)).toBe(true)
         expect(wrapped.foo).toBe(1)
     })
     it('should throw a warning when call set as realonly', () => {
