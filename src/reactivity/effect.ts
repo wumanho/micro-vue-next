@@ -48,6 +48,11 @@ function cleanUpEffect(effect) {
     effect.deps.length = 0
 }
 
+//语义化方法抽取
+export function isTracking(): boolean {
+    return shouldTrack && activeEffect !== undefined
+}
+
 // Map<target,depsMap>
 let targetMap = new Map()
 
@@ -66,15 +71,15 @@ export function track(target, key) {
         dep = new Set()
         depsMap.set(key, dep)
     }
+    trackEffects(dep)
+}
+
+//抽取依赖收集的方法，与ref公用
+export function trackEffects(dep) {
     //不再重复收集
     if (dep.has(activeEffect)) return
     dep.add(activeEffect)
     activeEffect.deps.push(dep)
-}
-
-//语义化方法抽取
-function isTracking(): boolean {
-    return shouldTrack && activeEffect !== undefined
 }
 
 export function trigger(target, key) {
@@ -82,6 +87,11 @@ export function trigger(target, key) {
     //遍历执行 dep 对象中所有收集到的副作用函数
     let depsMap = targetMap.get(target)
     let dep = depsMap.get(key)
+    triggerEffects(dep)
+}
+
+//抽取trigger方法，与ref公用
+export function triggerEffects(dep) {
     for (const effect of dep) {
         if (effect.scheduler) {
             effect.scheduler()
