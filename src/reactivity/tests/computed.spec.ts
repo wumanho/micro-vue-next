@@ -25,14 +25,14 @@ describe("computed", () => {
         //值没有更改时
         cValue.value
         expect(getter).toHaveBeenCalledTimes(1)
-        // // should not compute until needed
-        // value.foo = 2
-        // expect(getter).toHaveBeenCalledTimes(1)
-        // //now it should compute
-        // expect(cValue.value).toBe(2)
-        // expect(getter).toHaveBeenCalledTimes(2)
-        // //should not compute again
-        // cValue.value
-        // expect(getter).toHaveBeenCalledTimes(2)
+        // 虽然设置了新的值，但只要没有 .value，都不会重新计算
+        value.foo = 2
+        expect(getter).toHaveBeenCalledTimes(1)
+        // 这时候 getter 才会被调用
+        expect(cValue.value).toBe(2)
+        expect(getter).toHaveBeenCalledTimes(2)
+        // 再次获取 .value，getter 不会重新计算
+        cValue.value
+        expect(getter).toHaveBeenCalledTimes(2)
     });
 })
