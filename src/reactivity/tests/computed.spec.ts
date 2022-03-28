@@ -1,5 +1,6 @@
 import {reactive} from "../reactive";
 import {computed} from "../computed";
+import {effect} from "../effect";
 
 describe("computed", () => {
     it("happy path", () => {
@@ -35,4 +36,15 @@ describe("computed", () => {
         cValue.value
         expect(getter).toHaveBeenCalledTimes(2)
     });
+    // it('should trigger effect', () => {
+    //     const value = reactive({foo:undefined})
+    //     const cValue = computed(() => value.foo)
+    //     let dummy
+    //     effect(() => {
+    //         dummy = cValue.value
+    //     })
+    //     expect(dummy).toBe(undefined)
+    //     value.foo = 1
+    //     expect(dummy).toBe(1)
+    // })
 })
