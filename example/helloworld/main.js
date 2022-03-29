@@ -1,4 +1,4 @@
-import {createApp} from "../../src/runtime-core";
+import {createApp} from "../../src";
 import {App} from "./App";
 
 createApp(App).mount("#app")
