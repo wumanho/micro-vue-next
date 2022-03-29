@@ -1,7 +1,8 @@
 {
   "name": "micro-vue-next",
   "version": "1.0.0",
-  "main": "index.js",
+  "main": "lib/vue-next.cjs.js",
+  "module": "lib/vue-next.esm.js",
   "repository": "https://github.com/wumanho/micro-vue-next.git",
   "author": "WUMANHO <wumanho@tutanota.com>",
   "license": "MIT",

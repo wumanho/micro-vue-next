@@ -1,15 +1,16 @@
 import typescript from '@rollup/plugin-typescript'
+import config from "./package.json"
 
 export default {
     input: "./src/index.ts",
     output: [
         {
             format: "cjs",
-            file: 'lib/vue-next.cjs.js'
+            file: config.main
         },
         {
             format: "es",
-            file: 'lib/vue-next.esm.js'
+            file: config.module
         }
     ],
     plugins: [typescript()]
