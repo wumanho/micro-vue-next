@@ -6,6 +6,7 @@ export function render(vnode, container) {
 }
 
 function patch(vnode, container) {
+    //TODO 判断 vode 是否 element，element 要单独处理
     //处理组件
     processComponent(vnode, container)
 }
