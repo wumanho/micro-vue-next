@@ -63,8 +63,10 @@ function mountChildren(children, container) {
 }
 
 function setupRenderEffect(instance, container) {
+    const {proxy} = instance
     //直接调用 instance 的 render 获取到虚拟结点
-    const subTree = instance.render()
+    //指定 this 为代理对象
+    const subTree = instance.render.call(proxy)
     //再次调用 patch，去处理元素的渲染
     patch(subTree, container)
 }

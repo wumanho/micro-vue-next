@@ -6,13 +6,13 @@ export const App = {
         return h("div",
             {id: 'root', 'class': ["red", "hard"]},
             [
-                h("div", {'class': "red"}, "hi,array"),
-                h("div", {'class': "blue"}, "hi,array 2"),
+                h("div", {'class': "red"}, "hi," + this.msg),
+                h("div", {'class': "blue"}, "hi2," + this.msg),
             ])
     },
     setup() {
         return {
-            msg: "mini-vue"
+            msg: "mini-vue-flash"
         }
     }
 }
