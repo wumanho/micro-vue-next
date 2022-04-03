@@ -16,7 +16,7 @@ export function setupComponent(instance) {
 
 function setupStatefulComponent(instance) {
     const Component = instance.type
-    //获取 setup 返回的对象
+    //解构出来 setup 返回的对象
     const {setup} = Component
     if (setup) {
         //setupResult 可能是 function 或者 object
