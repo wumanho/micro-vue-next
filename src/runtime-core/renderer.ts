@@ -27,20 +27,20 @@ function processElement(vnode, container) {
     mountElement(vnode, container)
 }
 
-function mountComponent(vnode, container) {
+function mountComponent(initialVNode, container) {
     //必须先根据虚拟结点创建实例对象，实例对象用于挂载实例方法和属性，例如 props slot
-    const instance = createComponentInstance(vnode)
+    const instance = createComponentInstance(initialVNode)
     //处理「组件」的初始化逻辑
     setupComponent(instance)
     //处理「元素」的渲染逻辑
-    setupRenderEffect(instance, container)
+    setupRenderEffect(instance, initialVNode, container)
 }
 
 function mountElement(vnode, container) {
     const {children} = vnode
     const {props} = vnode
     //创建元素
-    const el = document.createElement(vnode.type)
+    const el = (vnode.el = document.createElement(vnode.type))
     //创建元素内容
     if (typeof children === 'string') {
         el.textContent = children
@@ -62,11 +62,13 @@ function mountChildren(children, container) {
     })
 }
 
-function setupRenderEffect(instance, container) {
+function setupRenderEffect(instance, initialVNode, container) {
     const {proxy} = instance
     //直接调用 instance 的 render 获取到虚拟结点
     //指定 this 为代理对象
     const subTree = instance.render.call(proxy)
     //再次调用 patch，去处理元素的渲染
     patch(subTree, container)
+    //$el挂载，这次才是获取到初始化完成的 el
+    initialVNode.el = subTree.el
 }
