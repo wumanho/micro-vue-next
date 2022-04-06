@@ -8,8 +8,14 @@ export const App = {
         return h("div",
             {id: 'root', 'class': ["red", "hard"]},
             [
-                h("div", {'class': "red"}, "hi," + this.msg),
-                h("div", {'class': "blue"}, "hi2," + this.msg),
+                h("div", {
+                    'class': "red", onClick: () => {
+                        console.log("click")
+                    }
+                }, "hi," + this.msg),
+                h("div", {'class': "blue",onMousedown:()=>{
+                    console.log("mouse down")
+                    }}, "hi2," + this.msg),
             ])
     },
     setup() {

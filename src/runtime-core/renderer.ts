@@ -52,6 +52,14 @@ function mountElement(vnode, container) {
     for (const key in props) {
         const val = props[key]
         el.setAttribute(key, val)
+        //注册事件的逻辑
+        const isOn = (key: string) => {
+            return /^on[A-Z]/.test(key)
+        }
+        if (isOn(key)) {
+            const event = key.slice(2).toLowerCase()
+            el.addEventListener(event, val)
+        }
     }
     //添加到父容器
     container.append(el)
