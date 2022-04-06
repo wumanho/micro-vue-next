@@ -1,13 +1,18 @@
+import {hasOwn} from "../shared";
+
 const publicPropertiesMap = {
     $el: (i) => i.vnode.el
 }
 
 export const PublicInstanceProxyHandlers = {
     get({_: instance}, key) {
-        //拿到 setupState
-        const {setupState} = instance
-        if (key in setupState) {
+        //拿到 setupState，和 props
+        const {setupState, props} = instance
+
+        if (hasOwn(setupState, key)) {
             return setupState[key]
+        } else if (hasOwn(props, key)) {
+            return props[key]
         }
         // this.$el 获取根元素
         const publicGetter = publicPropertiesMap[key]
