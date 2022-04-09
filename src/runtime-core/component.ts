@@ -1,14 +1,19 @@
 import {PublicInstanceProxyHandlers} from "./componentPublisInstalce";
 import {initProps} from "./componentProps";
 import {shallowReadonly} from "../reactivity/reactive";
+import {emit} from "./componentEmit";
 
 export function createComponentInstance(vnode) {
     const component = {
         vnode,
         type: vnode.type, //方便获取
         setupState: {}, // setup 返回的数据
-        props: {}
+        props: {},
+        emit: () => {
+        }
     }
+    //初始化 componentEmit
+    component.emit = emit.bind(null, component) as any
     return component
 }
 
@@ -29,7 +34,9 @@ function setupStatefulComponent(instance) {
     if (setup) {
         //setupResult 可能是 function 或者 object
         //传入 props，但props必须是只读的
-        const setupResult = setup(shallowReadonly(instance.props))
+        const setupResult = setup(shallowReadonly(instance.props), {
+            emit: instance.emit
+        })
         handleSetupResult(instance, setupResult)
     }
 }
