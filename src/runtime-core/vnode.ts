@@ -15,6 +15,12 @@ export function createVNode(type, props?, children?) {
     } else if (Array.isArray(children)) {
         vnode.shapeFlag = vnode.shapeFlag | ShapeFlags.ARRAY_CHILDREN
     }
+    //判断 children 是否插槽
+    if (vnode.shapeFlag & ShapeFlags.STATEFUL_COMPONENT) {
+        if (typeof vnode.children === "object") {
+            vnode.shapeFlag |= ShapeFlags.SLOTS_CHILDREN
+        }
+    }
     return vnode
 }
 

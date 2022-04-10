@@ -5,9 +5,9 @@ import {createVNode} from "../vnode";
  * @param slots 插槽
  * @param name 插槽插入的位置
  */
-export function renderSlots(slots, name) {
+export function renderSlots(slots, name, props) {
     const slot = slots[name]
-    if (slot) {
-        return createVNode("div", {}, slot)
+    if (slot && typeof slot === "function") {
+        return createVNode("div", {}, slot(props))
     }
 }
