@@ -2,13 +2,15 @@ import {PublicInstanceProxyHandlers} from "./componentPublisInstalce";
 import {initProps} from "./componentProps";
 import {shallowReadonly} from "../reactivity/reactive";
 import {emit} from "./componentEmit";
+import {initSlots} from "./componentSlots";
 
 export function createComponentInstance(vnode) {
     const component = {
         vnode,
-        type: vnode.type, //方便获取
+        type: vnode.type, //方便获取,如果是组件的话就是 App 对象，如果是元素的话就是标签名
         setupState: {}, // setup 返回的数据
-        props: {},
+        props: {},  //组件 props
+        slots:{},   //组件插槽
         emit: () => {
         }
     }
@@ -18,10 +20,11 @@ export function createComponentInstance(vnode) {
 }
 
 export function setupComponent(instance) {
-    //TODO
+    //初始化组件的 props
     initProps(instance, instance.vnode.props)
-    //initSlots()
-    //处理有状态的组件
+    //初始化组件的插槽
+    initSlots(instance,instance.vnode.children)
+    //处理有状态的组件(普通组件)
     setupStatefulComponent(instance)
 }
 
