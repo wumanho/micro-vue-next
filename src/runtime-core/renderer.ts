@@ -2,6 +2,7 @@
 import {createComponentInstance, setupComponent} from "./component";
 import {isObject} from "../shared";
 import {ShapeFlags} from "../shared/ShapeFlags";
+import {Fragment} from "./vnode";
 
 export function render(vnode, container) {
     patch(vnode, container)
@@ -11,13 +12,24 @@ function patch(vnode, container) {
     //判断 vode 是否 element，element 要单独处理
     //element：{type:'div',props:'hello'}
     //组件：{ type:APP{render()=>{} ,setup()=>{} }}
-    const {shapeFlag} = vnode
-    if (shapeFlag & ShapeFlags.ELEMENT) {
-        processElement(vnode, container)
-    } else if (shapeFlag & ShapeFlags.STATEFUL_COMPONENT) {
-        //处理组件
-        processComponent(vnode, container)
+    const {shapeFlag, type} = vnode
+    switch (type) {
+        case Fragment:
+            processFragment(vnode, container)
+            break;
+        default:
+            if (shapeFlag & ShapeFlags.ELEMENT) {
+                processElement(vnode, container)
+            } else if (shapeFlag & ShapeFlags.STATEFUL_COMPONENT) {
+                //处理组件
+                processComponent(vnode, container)
+            }
     }
+
+}
+
+function processFragment(vnode, container) {
+    mountChildren(vnode.children, container)
 }
 
 function processComponent(vnode, container) {
