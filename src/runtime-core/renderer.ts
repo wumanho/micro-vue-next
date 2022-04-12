@@ -2,7 +2,8 @@
 import {createComponentInstance, setupComponent} from "./component";
 import {isObject} from "../shared";
 import {ShapeFlags} from "../shared/ShapeFlags";
-import {Fragment} from "./vnode";
+import {Fragment, Text} from "./vnode"
+
 
 export function render(vnode, container) {
     patch(vnode, container)
@@ -16,7 +17,10 @@ function patch(vnode, container) {
     switch (type) {
         case Fragment:
             processFragment(vnode, container)
-            break;
+            break
+        case Text:
+            processText(vnode, container)
+            break
         default:
             if (shapeFlag & ShapeFlags.ELEMENT) {
                 processElement(vnode, container)
@@ -26,6 +30,14 @@ function patch(vnode, container) {
             }
     }
 
+}
+
+function processText(vnode, container) {
+    // children 就是一个字符串
+    const {children} = vnode
+    // 创建 text 节点，并赋值到 vnode 的 el 上
+    const textNode = (vnode.el = document.createTextNode(children))
+    container.append(textNode)
 }
 
 function processFragment(vnode, container) {
