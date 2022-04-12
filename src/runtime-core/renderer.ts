@@ -1,6 +1,5 @@
 //render 只干一件事，就是调用 patch
 import {createComponentInstance, setupComponent} from "./component";
-import {isObject} from "../shared";
 import {ShapeFlags} from "../shared/ShapeFlags";
 import {Fragment, Text} from "./vnode"
 
@@ -13,7 +12,7 @@ function patch(vnode, container) {
     //判断 vode 是否 element，element 要单独处理
     //element：{type:'div',props:'hello'}
     //组件：{ type:APP{render()=>{} ,setup()=>{} }}
-    const {shapeFlag, type} = vnode
+    const {type, shapeFlag} = vnode
     switch (type) {
         case Fragment:
             processFragment(vnode, container)
@@ -41,7 +40,7 @@ function processText(vnode, container) {
 }
 
 function processFragment(vnode, container) {
-    mountChildren(vnode.children, container)
+    mountChildren(vnode, container)
 }
 
 function processComponent(vnode, container) {
@@ -63,14 +62,14 @@ function mountComponent(initialVNode, container) {
 }
 
 function mountElement(vnode, container) {
-    const {children, props, shapeFlag} = vnode
+    const {children, props, shapeFlag, type} = vnode
     //创建元素
-    const el = (vnode.el = document.createElement(vnode.type))
+    const el = (vnode.el = document.createElement(type))
     //创建元素内容
     if (shapeFlag & ShapeFlags.TEXT_CHILDREN) {
         el.textContent = children
     } else if (shapeFlag & ShapeFlags.ARRAY_CHILDREN) {  //children 为数组
-        mountChildren(vnode.children, el)
+        mountChildren(vnode, el)
     }
     //处理 props
     for (const key in props) {
@@ -89,8 +88,8 @@ function mountElement(vnode, container) {
     container.append(el)
 }
 
-function mountChildren(children, container) {
-    children.forEach(v => {
+function mountChildren(vnode, container) {
+    vnode.children.forEach(v => {
         patch(v, container)
     })
 }
