@@ -16,7 +16,7 @@ yarn test
 
 &nbsp;
 
-## src/reactivity
+## src/reactivity 响应式模块
 
 :star2: API：reactive
 
@@ -50,7 +50,7 @@ yarn test
 
 &nbsp;
 
-## src/runtime-core
+## src/runtime-core 渲染器和 runtime
 
 :star2: 支持组件类型
 
@@ -60,7 +60,7 @@ yarn test
 
 :star2: 支持 $el api
 
-:star2: setup 可获取 props 和 contex
+:star2: setup 可获取 props 和 context
 
 :star2: emit 自定义事件
 
@@ -76,7 +76,7 @@ yarn test
 
 :star2: nextTick 的实现
 
-:star2: 支持 getCurrentInstance
+:star2: 支持 getCurrentInstance API
 
 :star2: 支持 provide/inject
 

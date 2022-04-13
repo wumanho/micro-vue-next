@@ -4,13 +4,15 @@ import {shallowReadonly} from "../reactivity/reactive";
 import {emit} from "./componentEmit";
 import {initSlots} from "./componentSlots";
 
-export function createComponentInstance(vnode) {
+export function createComponentInstance(vnode, parent) {
     const component = {
         vnode,
+        parent,
         type: vnode.type, //方便获取,如果是组件的话就是 App 对象，如果是元素的话就是标签名
         setupState: {}, // setup 返回的数据
         props: {},  //组件 props
         slots: {},   //组件插槽
+        provides: parent ? parent.provides : {},
         emit: () => {
         }
     }
