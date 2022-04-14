@@ -1,6 +1,10 @@
 # micro-vue-next
 
-:dart: vuejs/core 的基本实现
+:dart:  完成 [vuejs/core](https://github.com/vuejs/core) 的基本实现
+
+:dart:  学习如何设计一个充满魔法的前端框架
+
+:dart:  记录并输出一些内容
 
 &nbsp;
 
@@ -13,6 +17,15 @@ yarn build
 # 测试
 yarn test
 ```
+
+&nbsp;
+
+
+## 项目相关的博客
+
+[Vue3 源码中的 Reactivity 学习和思考](https://wumanho.cn/posts/vue3reactivity/)
+
+[Vue3 源码中的位运算](https://wumanho.cn/posts/vueshapeflags/)
 
 &nbsp;
 
@@ -84,8 +97,6 @@ yarn test
 
 &nbsp;
 
-## 项目相关的博客
+## src/runtime-dom DOM 平台渲染器
 
-[Vue3 源码中的 Reactivity 学习和思考](https://wumanho.cn/posts/vue3reactivity/)
-
-[Vue3 源码中的位运算](https://wumanho.cn/posts/vueshapeflags/)
+:star2: 支持自定义渲染器
