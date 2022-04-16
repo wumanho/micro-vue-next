@@ -6,7 +6,7 @@ import {createAppAPI} from "./createApp";
 
 export function createRenderer(options) {
     // 获取自定义渲染器，默认渲染到 Dom 平台
-    const {createElement, patchProp, insert} = options
+    const {createElement: hostCreateElement, patchProp: hostPatchProp, insert: hostInsert} = options
 
     function render(vnode, container) {
         patch(vnode, container, null)
@@ -74,7 +74,7 @@ export function createRenderer(options) {
     function mountElement(vnode, container, parentComponent) {
         const {children, props, shapeFlag, type} = vnode
         //创建元素，使用自定义渲染器
-        const el = (vnode.el = createElement(type))
+        const el = (vnode.el = hostCreateElement(type))
         //创建元素内容
         if (shapeFlag & ShapeFlags.TEXT_CHILDREN) {
             el.textContent = children
@@ -85,10 +85,10 @@ export function createRenderer(options) {
         for (const key in props) {
             const val = props[key]
             // 自定义 props 接口
-            patchProp(el, key, val)
+            hostPatchProp(el, key, val)
         }
         //添加到父容器
-        insert(el, container)
+        hostInsert(el, container)
     }
 
     function mountChildren(vnode, container, parentComponent) {
