@@ -3,11 +3,13 @@ import {initProps} from "./componentProps";
 import {shallowReadonly} from "../reactivity/reactive";
 import {emit} from "./componentEmit";
 import {initSlots} from "./componentSlots";
+import {proxyRef} from "../reactivity";
 
 export function createComponentInstance(vnode, parent) {
     const component = {
         vnode,
         parent,
+        isMounted:false, // 用于判断组件是否已经初始化
         type: vnode.type, //方便获取,如果是组件的话就是 App 对象，如果是元素的话就是标签名
         setupState: {}, // setup 返回的数据
         props: {},  //组件 props
@@ -52,8 +54,8 @@ function setupStatefulComponent(instance) {
 function handleSetupResult(instance, setupResult: any) {
     //TODO function
     if (typeof setupResult === "object") {
-        //赋值到 instance
-        instance.setupState = setupResult
+        //赋值到 instance,使用 proxyRef 包裹，可以不使用.value直接获取值
+        instance.setupState = proxyRef(setupResult)
     }
     //给定 render 函数
     finishComponentSetup(instance)

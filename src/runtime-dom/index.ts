@@ -5,7 +5,6 @@ import {createRenderer} from "../runtime-core";
  * @param type 元素类型
  */
 function createElement(type) {
-    console.log("createElement================")
     return document.createElement(type)
 }
 
@@ -16,7 +15,6 @@ function createElement(type) {
  * @param val 属性值
  */
 function patchProp(el, key, val) {
-    console.log("patchProp================")
     el.setAttribute(key, val)
     //注册事件的逻辑
     const isOn = (key: string) => {
@@ -34,7 +32,6 @@ function patchProp(el, key, val) {
  * @param parent 需要插入的父级元素
  */
 function insert(el, parent) {
-    console.log("insert===================")
     parent.append(el)
 }
 
