@@ -4,6 +4,7 @@ import {ShapeFlags} from "../shared/ShapeFlags";
 import {Fragment, Text} from "./vnode"
 import {createAppAPI} from "./createApp";
 import {effect} from "../reactivity/effect";
+import {EMPTY_OBJ} from "../shared";
 
 export function createRenderer(options) {
     // 获取自定义渲染器，默认渲染到 Dom 平台
@@ -74,10 +75,49 @@ export function createRenderer(options) {
         }
     }
 
+    /**
+     * element 更新处理，包括对属性的具体处理
+     * @param n1 老节点树
+     * @param n2 新节点树
+     * @param container 父元素
+     */
     function patchElement(n1, n2, container) {
-        console.log("patchElement")
-        console.log(n1,'n1');
-        console.log(n2,'n2');
+        const oldProps = n1.props || EMPTY_OBJ
+        const newProps = n2.props || EMPTY_OBJ
+        // n2 由于没有走初始化的逻辑，所有没有 el 属性
+        // 所以先将 n1 的 el 赋值给 n2，用于下次更新的时候获取
+        const el = (n2.el = n1.el)
+        patchProp(el, oldProps, newProps)
+    }
+
+
+    /**
+     *
+     * @param el
+     * @param oldProp
+     * @param newProp
+     */
+    function patchProp(el, oldProp, newProp) {
+        // 判断新节点树的 prop 是否有变化
+        if (oldProp !== newProp) {
+            for (const key in newProp) {
+                // 根据新属性列表的key获取老属性列表对应的值
+                const prevProp = oldProp[key]
+                const nextProp = newProp[key]
+
+                if (prevProp !== newProp) {
+                    hostPatchProp(el, key, prevProp, nextProp)
+                }
+            }
+            if (oldProp !== EMPTY_OBJ) {
+                // 如果老的 prop 在新的节点树里面被删除了，那这个属性也要删除掉
+                for (const key in oldProp) {
+                    if (!(key in newProp)) {
+                        hostPatchProp(el, key, oldProp[key], null)
+                    }
+                }
+            }
+        }
     }
 
     function mountComponent(initialVNode, container, parentComponent) {
@@ -110,7 +150,7 @@ export function createRenderer(options) {
         for (const key in props) {
             const val = props[key]
             // 自定义 props 接口
-            hostPatchProp(el, key, val)
+            hostPatchProp(el, key, null, val)
         }
         //添加到父容器
         hostInsert(el, container)

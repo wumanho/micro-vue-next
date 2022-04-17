@@ -12,17 +12,24 @@ function createElement(type) {
  *  自定义渲染器，处理 prop
  * @param el 元素
  * @param key 属性键
- * @param val 属性值
+ * @param prevVal 旧属性键
+ * @param nextVal 新属性值
  */
-function patchProp(el, key, val) {
-    el.setAttribute(key, val)
+function patchProp(el, key, prevVal, nextVal) {
     //注册事件的逻辑
     const isOn = (key: string) => {
         return /^on[A-Z]/.test(key)
     }
+    // 判断 props 是事件还是属性
     if (isOn(key)) {
         const event = key.slice(2).toLowerCase()
-        el.addEventListener(event, val)
+        el.addEventListener(event, nextVal)
+    } else {
+        if (nextVal === undefined || nextVal === null) {
+            el.removeAttribute(key)
+        } else {
+            el.setAttribute(key, nextVal)
+        }
     }
 }
 

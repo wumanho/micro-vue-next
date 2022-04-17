@@ -15,6 +15,7 @@ export function createComponentInstance(vnode, parent) {
         props: {},  //组件 props
         slots: {},   //组件插槽
         provides: parent ? parent.provides : {},
+        subTree:{}, // 用于记录旧的组件节点树
         emit: () => {
         }
     }
