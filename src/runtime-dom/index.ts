@@ -42,10 +42,32 @@ function insert(el, parent) {
     parent.append(el)
 }
 
+/**
+ * 自定义渲染器，移除元素
+ * @param child 需要移除的元素
+ */
+function remove(child) {
+    const parent = child.parentNode
+    if (parent) {
+        parent.removeChild(child)
+    }
+}
+
+/**
+ * 自定义渲染器，设置元素 text
+ * @param container 容器
+ * @param text 设置的内容
+ */
+function setElementText(container, text) {
+    container.textContent = text
+}
+
 const renderer = createRenderer({
     createElement,
     patchProp,
-    insert
+    insert,
+    remove,
+    setElementText
 }) as any
 
 export function createApp(...args) {

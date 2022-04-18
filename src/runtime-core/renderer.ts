@@ -8,7 +8,13 @@ import {EMPTY_OBJ} from "../shared";
 
 export function createRenderer(options) {
     // 获取自定义渲染器，默认渲染到 Dom 平台
-    const {createElement: hostCreateElement, patchProp: hostPatchProp, insert: hostInsert} = options
+    const {
+        createElement: hostCreateElement,
+        patchProp: hostPatchProp,
+        insert: hostInsert,
+        remove: hostRemove,
+        setElementText: hostSetElementText
+    } = options
 
     function render(vnode, container) {
         patch(null, vnode, container, null)
@@ -52,7 +58,7 @@ export function createRenderer(options) {
     }
 
     function processFragment(n1, n2, container, parentComponent) {
-        mountChildren(n2, container, parentComponent)
+        mountChildren(n2.children, container, parentComponent)
     }
 
     function processComponent(n1, n2, container, parentComponent) {
@@ -71,23 +77,61 @@ export function createRenderer(options) {
         if (!n1) {
             mountElement(n2, container, parentComponent)
         } else {
-            patchElement(n1, n2, container)
+            patchElement(n1, n2, container, parentComponent)
         }
     }
 
     /**
-     * element 更新处理，包括对属性的具体处理
+     * element 更新处理，包括对属性、Children的更新处理
      * @param n1 老节点树
      * @param n2 新节点树
      * @param container 父元素
      */
-    function patchElement(n1, n2, container) {
+    function patchElement(n1, n2, container, parentComponent) {
         const oldProps = n1.props || EMPTY_OBJ
         const newProps = n2.props || EMPTY_OBJ
         // n2 由于没有走初始化的逻辑，所有没有 el 属性
         // 所以先将 n1 的 el 赋值给 n2，用于下次更新的时候获取
         const el = (n2.el = n1.el)
+        patchChildren(n1, n2, el, parentComponent)
         patchProp(el, oldProps, newProps)
+    }
+
+    /**
+     * 对 children 的更新处理
+     * @param n1 老节点
+     * @param n2 新节点
+     */
+    function patchChildren(n1, n2, container, parentComponent) {
+        // 获取旧元素的类型和 children
+        const prevShapeFlag = n1.shapeFlag
+        const c1 = n1.children
+        // 新元素的类型以及 children
+        const shapeFlag = n2.shapeFlag
+        const c2 = n2.children
+        // 新元素是 text 普通文本
+        if (shapeFlag & ShapeFlags.TEXT_CHILDREN) {
+            // 如果老节点的 children 是数组的话，需要先清空掉
+            if (prevShapeFlag & ShapeFlags.ARRAY_CHILDREN) {
+                // 1.把老节点的children清空
+                unmountChildren(n1.children)
+            }
+            // 再设置新的 text 值
+            if (c1 !== c2) hostSetElementText(container, c2)
+        } else { // 新节点的 children 是数组
+            if (prevShapeFlag & ShapeFlags.TEXT_CHILDREN) {
+                // 清空老的文本节点
+                hostSetElementText(container, "")
+                mountChildren(c2, container, parentComponent)
+            }
+        }
+    }
+
+    function unmountChildren(children) {
+        for (let i = 0; i < children.length; i++) {
+            const el = children[i].el
+            hostRemove(el)
+        }
     }
 
 
@@ -144,7 +188,7 @@ export function createRenderer(options) {
         if (shapeFlag & ShapeFlags.TEXT_CHILDREN) {
             el.textContent = children
         } else if (shapeFlag & ShapeFlags.ARRAY_CHILDREN) {  //children 为数组
-            mountChildren(vnode, el, parentComponent)
+            mountChildren(vnode.children, el, parentComponent)
         }
         //处理 props
         for (const key in props) {
@@ -156,8 +200,8 @@ export function createRenderer(options) {
         hostInsert(el, container)
     }
 
-    function mountChildren(vnode, container, parentComponent) {
-        vnode.children.forEach(v => {
+    function mountChildren(children, container, parentComponent) {
+        children.forEach(v => {
             patch(null, v, container, parentComponent)
         })
     }
