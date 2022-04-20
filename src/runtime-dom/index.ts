@@ -35,11 +35,13 @@ function patchProp(el, key, prevVal, nextVal) {
 
 /**
  * 自定义渲染器,插入元素
- * @param el 元素
+ * @param child 元素
  * @param parent 需要插入的父级元素
+ * @param anchor 锚点，指定插入的位置
  */
-function insert(el, parent) {
-    parent.append(el)
+function insert(child, parent, anchor = null) {
+    // parent.append(el)
+    parent.insertBefore(child, anchor)
 }
 
 /**
