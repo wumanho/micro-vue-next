@@ -40,15 +40,15 @@ import { ref, h } from "../../lib/vue-next.esm.js"
 // (a b)
 // (a b) c
 // i = 2, e1 = 1, e2 = 2
-const prevChildren = [h("p", { key: "A" }, "A"), h("p", { key: "B" }, "B")];
-const nextChildren = [
-  h("p", { key: "A" }, "A"),
-  h("p", { key: "B" }, "B"),
-  h("p", { key: "C" }, "C"),
-  h("p", { key: "D" }, "D"),
-  h("p", { key: "E" }, "E"),
-  h("p", { key: "F" }, "F"),
-];
+// const prevChildren = [h("p", { key: "A" }, "A"), h("p", { key: "B" }, "B")];
+// const nextChildren = [
+//   h("p", { key: "A" }, "A"),
+//   h("p", { key: "B" }, "B"),
+//   h("p", { key: "C" }, "C"),
+//   h("p", { key: "D" }, "D"),
+//   h("p", { key: "E" }, "E"),
+//   h("p", { key: "F" }, "F"),
+// ];
 
 // 右侧
 // (a b)
@@ -100,7 +100,6 @@ const nextChildren = [
 // a,b,(e,c),f,g
 // D 节点在新的里面是没有的 - 需要删除掉
 // C 节点 props 也发生了变化
-
 // const prevChildren = [
 //   h("p", { key: "A" }, "A"),
 //   h("p", { key: "B" }, "B"),
@@ -109,7 +108,6 @@ const nextChildren = [
 //   h("p", { key: "F" }, "F"),
 //   h("p", { key: "G" }, "G"),
 // ];
-
 // const nextChildren = [
 //   h("p", { key: "A" }, "A"),
 //   h("p", { key: "B" }, "B"),
@@ -133,7 +131,7 @@ const nextChildren = [
 //   h("p", { key: "F" }, "F"),
 //   h("p", { key: "G" }, "G"),
 // ];
-
+//
 // const nextChildren = [
 //   h("p", { key: "A" }, "A"),
 //   h("p", { key: "B" }, "B"),
@@ -158,7 +156,7 @@ const nextChildren = [
 //   h("p", { key: "F" }, "F"),
 //   h("p", { key: "G" }, "G"),
 // ];
-
+//
 // const nextChildren = [
 //   h("p", { key: "A" }, "A"),
 //   h("p", { key: "B" }, "B"),
@@ -181,13 +179,13 @@ const nextChildren = [
 //   h("p", { key: "F" }, "F"),
 //   h("p", { key: "G" }, "G"),
 // ];
-
+//
 // const nextChildren = [
 //   h("p", { key: "A" }, "A"),
 //   h("p", { key: "B" }, "B"),
 //   h("p", { key: "E" }, "E"),
 //   h("p", { key: "C" }, "C"),
-//   h("p", { key: "H" }, "H"),
+//   h("p", { key: "D" }, "D"),
 //   h("p", { key: "F" }, "F"),
 //   h("p", { key: "G" }, "G"),
 // ];
@@ -196,27 +194,27 @@ const nextChildren = [
 // a,b,(c,d,e,z),f,g
 // a,b,(d,c,y,e),f,g
 
-// const prevChildren = [
-//   h("p", { key: "A" }, "A"),
-//   h("p", { key: "B" }, "B"),
-//   h("p", { key: "C" }, "C"),
-//   h("p", { key: "D" }, "D"),
-//   h("p", { key: "E" }, "E"),
-//   h("p", { key: "Z" }, "Z"),
-//   h("p", { key: "F" }, "F"),
-//   h("p", { key: "G" }, "G"),
-// ];
-//
-// const nextChildren = [
-//   h("p", { key: "A" }, "A"),
-//   h("p", { key: "B" }, "B"),
-//   h("p", { key: "D" }, "D"),
-//   h("p", { key: "C" }, "C"),
-//   h("p", { key: "Y" }, "Y"),
-//   h("p", { key: "E" }, "E"),
-//   h("p", { key: "F" }, "F"),
-//   h("p", { key: "G" }, "G"),
-// ];
+const prevChildren = [
+  h("p", { key: "A" }, "A"),
+  h("p", { key: "B" }, "B"),
+  h("p", { key: "C" }, "C"),
+  h("p", { key: "D" }, "D"),
+  h("p", { key: "E" }, "E"),
+  h("p", { key: "Z" }, "Z"),
+  h("p", { key: "F" }, "F"),
+  h("p", { key: "G" }, "G"),
+];
+
+const nextChildren = [
+  h("p", { key: "A" }, "A"),
+  h("p", { key: "B" }, "B"),
+  h("p", { key: "D" }, "D"),
+  h("p", { key: "C" }, "C"),
+  h("p", { key: "Y" }, "Y"),
+  h("p", { key: "E" }, "E"),
+  h("p", { key: "F" }, "F"),
+  h("p", { key: "G" }, "G"),
+];
 
 export default {
   name: "ArrayToArray",

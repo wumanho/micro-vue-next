@@ -145,11 +145,14 @@ export function createRenderer(options) {
      *  diff 核心逻辑
      * @param c1 old children
      * @param c2 new children
+     * @param container 在当前方法中不关键
+     * @param parentComponent 在当前方法中不关键
+     * @param parentAnchor 锚点，用于指定元素插入的位置
      */
     function patchKeyedChildren(c1, c2, container, parentComponent, parentAnchor) {
         let i = 0   // 新节点树游标
-        let e1 = c1.length - 1 // 索引指向老节点树尾部
-        let e2 = c2.length - 1 // 索引指向新节点树尾部
+        let e1 = c1.length - 1 // 索引指向(老)节点树尾部
+        let e2 = c2.length - 1 // 索引指向(新)节点树尾部
 
         // 左侧位移
         while (i <= e1 && i <= e2) {  // 循环条件：游标不能大于等于 e1 和 e2
@@ -164,7 +167,7 @@ export function createRenderer(options) {
         }
 
         // 右侧位移
-        while (i <= e1 && i <= e2) {
+        while (i <= e1 && i <= e2) { // 循环条件：游标不能大于等于 e1 和 e2
             const n1 = c1[e1] // 取得元素(尾部)
             const n2 = c2[e2] // 取得元素(尾部)
             if (isSameVNodeType(n1, n2)) {
@@ -176,7 +179,7 @@ export function createRenderer(options) {
             e2--
         }
 
-        /** 位移完毕，已锁定变化部分 **/
+        /** 位移完毕，已确定中间部分 **/
 
         if (i > e1) {  // 新的节点树在原来的基础上新增了节点
             if (i <= e2) {
@@ -194,7 +197,95 @@ export function createRenderer(options) {
                 i++
             }
         } else { // 处理中间乱序的情况下的逻辑
+            let s1 = i // 老节点树的起始索引
+            let s2 = i // 新节点树的起始索引
 
+            // 用于建立 key -> 元素位置 映射关系
+            const keyToNewIndexMap = new Map()
+            // 用于记录新节点树(除去左右两侧)的节点数量，即需要处理的总数量
+            const toBePatch = e2 - s2 + 1
+            // 新老映射关系表，为了保证性能，采用了定长数组
+            const newIndexToOldIndexMap = new Array(toBePatch)
+            // 标记是否有需要移动的元素
+            let moved = false
+            // 用于临时保存元素的索引，也是为了判断是否有需要移动的元素
+            let maxNewIndexSoFar = 0
+
+            for (let i = 0; i < toBePatch; i++) {
+                newIndexToOldIndexMap[i] = 0 // 初始化映射表
+            }
+            // 用于记录已处理的新节点的数量
+            let patched = 0
+
+            for (let i = s2; i <= e2; i++) {
+                const nextChild = c2[i]
+                keyToNewIndexMap.set(nextChild.key, i)  // key -> 元素位置
+            }
+
+            for (let i = s1; i <= e1; i++) {
+                const prevChild = c1[i] // 旧节点中间部分的起始元素
+
+                // 已处理的元素已经大于等于需要处理的总元素
+                if (patched >= toBePatch) {
+                    //剩下的元素全部移除掉，然后过掉当前循环
+                    hostRemove(prevChild.el)
+                    continue
+                }
+
+                let newIndex
+                // key 值对比
+                if (prevChild.key !== null) {
+                    newIndex = keyToNewIndexMap.get(prevChild.key) // 通过 key 尝试从新节点树中获取到相同的元素
+                } else {
+                    // 没有 key，遍历对比
+                    for (let j = s2; j <= e2; j++) {
+                        if (isSameVNodeType(prevChild, c2[j])) {
+                            newIndex = j
+                            break
+                        }
+                    }
+                }
+
+                if (newIndex === undefined) {
+                    // 元素没有出现在新的节点树中，移除
+                    hostRemove(prevChild.el)
+
+                } else {// 元素出现在新的节点树中
+                    // 记录当前元素的索引位置，如果元素在新节点树中的位置比原来的位置小了，意味着有元素的移动
+                    // 需要进行最长递增子序列计算，否则就意味着元素位置没有变动，就不需要走下面的逻辑了
+                    if (newIndex >= maxNewIndexSoFar) {
+                        maxNewIndexSoFar = newIndex
+                    } else {
+                        moved = true
+                    }
+                    newIndexToOldIndexMap[newIndex - s2] = i + 1
+                    patch(prevChild, c2[newIndex], container, parentComponent, null)
+                    patched++
+                }
+            }
+
+            // 获取最长递增子序列（即稳定不变的元素）
+            const increasingNewIndexSequence = moved ? getSequence(newIndexToOldIndexMap) : []
+            // 游标 j 指向最长递增子序列
+            let j = increasingNewIndexSequence.length - 1
+            // 倒序匹配，确保元素插入到正确的位置
+            for (let i = toBePatch - 1; i >= 0; i--) {
+                const nextIndex = i + s2
+                const nextChild = c2[nextIndex] // 从新节点树中取得元素
+                const anchor = nextIndex + 1 < c2.length ? c2[nextIndex + 1].el : null // 锚点，不可以大于 c2 的长度
+                if (newIndexToOldIndexMap[i] === 0) {
+                    // 创建新元素
+                    patch(null, nextChild, container, parentComponent, anchor)
+                } else if (moved) {
+                    if (j < 0 || i !== increasingNewIndexSequence[j]) {
+                        // 移动元素
+                        console.log("移动位置")
+                        hostInsert(nextChild.el, container, anchor)
+                    } else {
+                        j--
+                    }
+                }
+            }
         }
     }
 
@@ -303,6 +394,48 @@ export function createRenderer(options) {
                 patch(prevSubTree, subTree, container, instance, anchor)
             }
         })
+    }
+
+    // 最长递增子序列
+    function getSequence(arr) {
+        const p = arr.slice()
+        const result = [0]
+        let i, j, u, v, c
+        const len = arr.length
+        for (i = 0; i < len; i++) {
+            const arrI = arr[i]
+            if (arrI !== 0) {
+                j = result[result.length - 1]
+                if (arr[j] < arrI) {
+                    p[i] = j
+                    result.push(i)
+                    continue
+                }
+                u = 0
+                v = result.length - 1
+                while (u < v) {
+                    c = (u + v) >> 1
+                    if (arr[result[c]] < arrI) {
+                        u = c + 1
+                    } else {
+                        v = c
+                    }
+                }
+                if (arrI < arr[result[u]]) {
+                    if (u > 0) {
+                        p[i] = result[u - 1]
+                    }
+                    result[u] = i
+                }
+            }
+        }
+        u = result.length
+        v = result[u - 1]
+        while (u-- > 0) {
+            result[u] = v
+            v = p[v]
+        }
+        return result
     }
 
     return {
