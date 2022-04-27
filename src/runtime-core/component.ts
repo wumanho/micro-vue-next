@@ -9,13 +9,14 @@ export function createComponentInstance(vnode, parent) {
     const component = {
         vnode,
         parent,
-        isMounted:false, // 用于判断组件是否已经初始化
+        isMounted: false, // 用于判断组件是否已经初始化
         type: vnode.type, //方便获取,如果是组件的话就是 App 对象，如果是元素的话就是标签名
         setupState: {}, // setup 返回的数据
         props: {},  //组件 props
         slots: {},   //组件插槽
         provides: parent ? parent.provides : {},
-        subTree:{}, // 用于记录旧的组件节点树
+        subTree: {}, // 用于记录旧的组件节点树
+        next: null, // 存储新的节点树
         emit: () => {
         }
     }

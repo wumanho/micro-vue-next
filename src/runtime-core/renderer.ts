@@ -5,6 +5,7 @@ import {Fragment, Text} from "./vnode"
 import {createAppAPI} from "./createApp";
 import {effect} from "../reactivity/effect";
 import {EMPTY_OBJ} from "../shared";
+import {shouldUpdateComponent} from "./componentUpdateUtils";
 
 export function createRenderer(options) {
     // 获取自定义渲染器，默认渲染到 Dom 平台
@@ -44,7 +45,6 @@ export function createRenderer(options) {
                 if (shapeFlag & ShapeFlags.ELEMENT) {
                     processElement(n1, n2, container, parentComponent, anchor)
                 } else if (shapeFlag & ShapeFlags.STATEFUL_COMPONENT) {
-                    //处理组件
                     processComponent(n1, n2, container, parentComponent, anchor)
                 }
         }
@@ -62,9 +62,36 @@ export function createRenderer(options) {
         mountChildren(n2.children, container, parentComponent, anchor)
     }
 
+    /**
+     * 处理组件挂载 & 更新逻辑
+     * @param n1 old
+     * @param n2 new
+     * @param container 容器
+     * @param parentComponent 父组件
+     * @param anchor 锚点
+     */
     function processComponent(n1, n2, container, parentComponent, anchor) {
-        //挂载
-        mountComponent(n2, container, parentComponent, anchor)
+        if (!n1) {
+            //挂载
+            mountComponent(n2, container, parentComponent, anchor)
+        } else {
+            updateComponent(n1, n2)
+        }
+    }
+
+    function updateComponent(n1, n2) {
+        // n2 是更新的实例，没有走初始化，所以需要把 n1 的 component 继承一下
+        n2.component = n1.component
+        const instance = n2.component
+        if (shouldUpdateComponent(n1, n2)) {
+            // 组件实例的 next 用于存储新的节点树
+            instance.next = n2
+            // update() 是 effect 函数返回的 runner
+            instance.update()
+        } else {
+            n2.el = n1.el
+            n2.vnode = n2
+        }
     }
 
     /**
@@ -324,8 +351,9 @@ export function createRenderer(options) {
     }
 
     function mountComponent(initialVNode, container, parentComponent, anchor) {
-        //必须先根据虚拟结点创建实例对象，实例对象用于挂载实例方法和属性，例如 props slot
-        const instance = createComponentInstance(initialVNode, parentComponent)
+        // 必须先根据虚拟结点创建实例对象，实例对象用于挂载实例方法和属性，例如 props slot
+        // (为虚拟节点绑定当前的实例对象)
+        const instance = (initialVNode.component = createComponentInstance(initialVNode, parentComponent))
         //处理「组件」的初始化逻辑
         setupComponent(instance)
         //处理「元素」的渲染逻辑
@@ -371,9 +399,11 @@ export function createRenderer(options) {
      * @param instance
      * @param initialVNode
      * @param container
+     * @param anchor
      */
     function setupRenderEffect(instance, initialVNode, container, anchor) {
-        effect(() => {
+        // 为当前实例赋值这个 effect 的 runner，用于更新组件的时候调用
+        instance.update = effect(() => {
             if (!instance.isMounted) { // 初始化逻辑
                 const {proxy} = instance
                 //直接调用 instance 的 render() 获取到虚拟结点
@@ -385,7 +415,14 @@ export function createRenderer(options) {
                 initialVNode.el = subTree.el
                 instance.isMounted = true
             } else { //更新逻辑
-                const {proxy} = instance
+                // next：新的虚拟节点
+                // vnode：老的虚拟节点
+                const {proxy, next, vnode} = instance
+                // 更新 el
+                if (next) {
+                    next.el = vnode.el
+                    updateComponentPreRender(instance, next)
+                }
                 // 获取当前组件的 subTree 以及上一次的 subTree 用于 diff 对比的
                 const subTree = instance.render.call(proxy)
                 const prevSubTree = instance.subTree
@@ -396,49 +433,62 @@ export function createRenderer(options) {
         })
     }
 
-    // 最长递增子序列
-    function getSequence(arr) {
-        const p = arr.slice()
-        const result = [0]
-        let i, j, u, v, c
-        const len = arr.length
-        for (i = 0; i < len; i++) {
-            const arrI = arr[i]
-            if (arrI !== 0) {
-                j = result[result.length - 1]
-                if (arr[j] < arrI) {
-                    p[i] = j
-                    result.push(i)
-                    continue
-                }
-                u = 0
-                v = result.length - 1
-                while (u < v) {
-                    c = (u + v) >> 1
-                    if (arr[result[c]] < arrI) {
-                        u = c + 1
-                    } else {
-                        v = c
-                    }
-                }
-                if (arrI < arr[result[u]]) {
-                    if (u > 0) {
-                        p[i] = result[u - 1]
-                    }
-                    result[u] = i
-                }
-            }
-        }
-        u = result.length
-        v = result[u - 1]
-        while (u-- > 0) {
-            result[u] = v
-            v = p[v]
-        }
-        return result
-    }
-
     return {
         createApp: createAppAPI(render)
     }
+}
+
+/**
+ *  组件更新，更新组件 props，封装
+ * @param instance 组件实例
+ * @param nextVNode 新虚拟节点
+ */
+function updateComponentPreRender(instance, nextVNode) {
+    instance.vnode = nextVNode
+    instance.next = null
+
+    instance.props = nextVNode.props
+}
+
+
+// 最长递增子序列
+function getSequence(arr) {
+    const p = arr.slice()
+    const result = [0]
+    let i, j, u, v, c
+    const len = arr.length
+    for (i = 0; i < len; i++) {
+        const arrI = arr[i]
+        if (arrI !== 0) {
+            j = result[result.length - 1]
+            if (arr[j] < arrI) {
+                p[i] = j
+                result.push(i)
+                continue
+            }
+            u = 0
+            v = result.length - 1
+            while (u < v) {
+                c = (u + v) >> 1
+                if (arr[result[c]] < arrI) {
+                    u = c + 1
+                } else {
+                    v = c
+                }
+            }
+            if (arrI < arr[result[u]]) {
+                if (u > 0) {
+                    p[i] = result[u - 1]
+                }
+                result[u] = i
+            }
+        }
+    }
+    u = result.length
+    v = result[u - 1]
+    while (u-- > 0) {
+        result[u] = v
+        v = p[v]
+    }
+    return result
 }

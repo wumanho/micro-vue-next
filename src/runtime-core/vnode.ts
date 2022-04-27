@@ -8,6 +8,7 @@ export function createVNode(type, props?, children?) {
         type,
         props,
         children,
+        component: null, // 虚拟节点对应的实例
         key: props && props.key,
         shapeFlag: getShapeFlag(type),
         el: null
