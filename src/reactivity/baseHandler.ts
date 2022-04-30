@@ -3,8 +3,8 @@ import {reactive, ReactiveFlag, readonly} from "./reactive";
 import {extend, isObject} from "../shared";
 
 //get 和 set 只需要初始化一次即可
-const get = createGetter(false)
-const set = createSetter()
+const defaultGet = createGetter(false)
+const defaultSet = createSetter()
 const readOnlyGet = createGetter(true)
 const shallowReadonlyGet = createGetter(true, true)
 
@@ -44,7 +44,10 @@ function createSetter() {
     }
 }
 
-export const mutableHandlers = {get, set}
+export const mutableHandlers = {
+    get: defaultGet,
+    set: defaultSet
+}
 
 export const readonlyHandlers = {
     get: readOnlyGet,
