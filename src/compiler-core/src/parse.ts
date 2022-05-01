@@ -47,7 +47,10 @@ function parseInterpolation(context) {
 
 function parseChildren(context) {
     const nodes: any[] = []
-    if (context.source.startsWith("{{")) nodes.push(parseInterpolation(context))
+    if (context.source.startsWith("{{")) {
+        // 解析插值
+        nodes.push(parseInterpolation(context))
+    }
     return nodes
 }
 
