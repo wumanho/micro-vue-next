@@ -17,4 +17,16 @@ describe('parse', () => {
             })
         })
     })
+    describe('element', () => {
+        test('simple element div', () => {
+            // 元素解析器
+            const ast = baseParse("<div></div>")
+            // root
+            // interpolation:插值
+            expect(ast.children[0]).toStrictEqual({
+                type: NodeTypes.ELEMENT,
+                tag: "div"
+            })
+        });
+    })
 })

@@ -1,5 +1,10 @@
 import {NodeTypes} from "./ast";
 
+const enum TagType {
+    START,
+    END
+}
+
 export function baseParse(content: string) {
     // 根据 content 创建全局上下文对象
     const context = createParserContext(content)
@@ -18,6 +23,7 @@ function advanceBy(context: any, length: number) {
 
 /**
  * 解析插值方法
+ * @param context 全局上下文
  */
 function parseInterpolation(context) {
     // 定义初始分隔符和结束分隔符
@@ -45,11 +51,43 @@ function parseInterpolation(context) {
     }
 }
 
+function parseTag(context, type: number) {
+    //1.解析 tag
+    const match: any = /^<\/?([a-z]*)/i.exec(context.source)
+    const tag = match[1]
+    //2.清除 source
+    advanceBy(context, match[0].length) // ></div>
+    advanceBy(context, 1) // </div>
+    if (type === TagType.END) return
+    return {
+        type: NodeTypes.ELEMENT,
+        tag
+    }
+}
+
+/**
+ * 解析 element 方法
+ * @param context 全局上下文
+ */
+function parseElement(context) {
+    const element = parseTag(context, TagType.START);
+    // 这一步是清除闭合的那个标签
+    parseTag(context, TagType.END)
+    console.log(context.source, "source")
+    return element
+}
+
 function parseChildren(context) {
     const nodes: any[] = []
-    if (context.source.startsWith("{{")) {
+    const s = context.source
+    if (s.startsWith("{{")) {
         // 解析插值
         nodes.push(parseInterpolation(context))
+    } else if (s[0] === "<") {
+        // 元素解析，判断尖括号后是否字母a-z，忽略大小写
+        if (/[a-z]/i.test(s[1])) {
+            nodes.push(parseElement(context))
+        }
     }
     return nodes
 }

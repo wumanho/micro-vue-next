@@ -279,8 +279,8 @@ export function createRenderer(options) {
                     hostRemove(prevChild.el)
 
                 } else {// 元素出现在新的节点树中
-                    // 记录当前元素的索引位置，如果元素在新节点树中的位置比原来的位置小了，意味着有元素的移动
-                    // 需要进行最长递增子序列计算，否则就意味着元素位置没有变动，就不需要走下面的逻辑了
+                    // 记录当前元素的索引位置，如果元素在新节点树中的位置比原来的位置小了，意味着有元素的移动，需要进行最长递增子序列计算
+                    // 否则就意味着元素位置没有变动，就不需要走下面的逻辑了
                     if (newIndex >= maxNewIndexSoFar) {
                         maxNewIndexSoFar = newIndex
                     } else {
