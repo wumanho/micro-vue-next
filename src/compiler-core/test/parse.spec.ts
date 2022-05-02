@@ -29,4 +29,16 @@ describe('parse', () => {
             })
         });
     })
+    describe('text', () => {
+        test('simple text', () => {
+            // 文本解析器
+            const ast = baseParse("hello text")
+            // root
+            // interpolation:插值
+            expect(ast.children[0]).toStrictEqual({
+                type: NodeTypes.TEXT,
+                content: "hello text"
+            })
+        })
+    })
 })

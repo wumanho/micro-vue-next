@@ -38,10 +38,10 @@ function parseInterpolation(context) {
     // 获取插值内容长度
     const rawContentLength = closeIndex - openDelimiter.length
     // 确认实际内容
-    const rawContent = context.source.slice(0, rawContentLength)
+    const rawContent = parseTextData(context, rawContentLength)
     const content = rawContent.trim()
     // 清空上下文的 source
-    advanceBy(context, rawContentLength + closeDelimiter.length)
+    advanceBy(context, closeDelimiter.length)
     return {
         type: NodeTypes.INTERPOLATION,
         content: {
@@ -73,22 +73,52 @@ function parseElement(context) {
     const element = parseTag(context, TagType.START);
     // 这一步是清除闭合的那个标签
     parseTag(context, TagType.END)
-    console.log(context.source, "source")
     return element
+}
+
+/**
+ * 获取插值文本和获取文件的方法抽取
+ * @param context 全局上下文
+ * @param length 截取长度
+ */
+function parseTextData(context, length) {
+    //1.获取文本内容
+    const content = context.source.slice(0, length)
+    //2.清空上下文
+    advanceBy(context, length)
+    return content;
+}
+
+/**
+ * 解析文本 方法
+ * @param context 全局上下文
+ */
+function parseText(context) {
+    const content = parseTextData(context, context.source.length);
+    return {
+        type: NodeTypes.TEXT,
+        content: content
+    }
 }
 
 function parseChildren(context) {
     const nodes: any[] = []
+    let node
     const s = context.source
     if (s.startsWith("{{")) {
         // 解析插值
-        nodes.push(parseInterpolation(context))
+        node = parseInterpolation(context)
     } else if (s[0] === "<") {
         // 元素解析，判断尖括号后是否字母a-z，忽略大小写
         if (/[a-z]/i.test(s[1])) {
-            nodes.push(parseElement(context))
+            node = parseElement(context)
         }
     }
+    // 不是插值，不是元素，默认为 text
+    if (!node) {
+        node = parseText(context)
+    }
+    nodes.push(node)
     return nodes
 }
 
