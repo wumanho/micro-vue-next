@@ -4,11 +4,13 @@
  * @param options 可选参数
  */
 
-export function transform(root, options) {
+export function transform(root, options = {}) {
     // 创建全局上下文
     const context = createTransformContext(root, options)
-    // 深度优先搜索，修改 text 的内容
+    // 深度优先搜索
     traverseNode(root, context)
+    // 为 codegen 创建入口
+    createRootCodegen(root)
 }
 
 /**
@@ -47,5 +49,9 @@ function traversChildren(node, context) {
             traverseNode(node, context)
         }
     }
+}
+
+function createRootCodegen(root) {
+    root.codegenNode = root.children[0]
 }
 
