@@ -88,7 +88,9 @@ export function trigger(target, key) {
     //遍历执行 dep 对象中所有收集到的副作用函数
     let depsMap = targetMap.get(target)
     let dep = depsMap.get(key)
-    triggerEffects(dep)
+    if (dep) {
+        triggerEffects(dep)
+    }
 }
 
 //抽取trigger方法，与ref公用

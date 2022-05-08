@@ -5,7 +5,8 @@ import {run} from "jest";
 describe('effect', () => {
     it('happy path', () => {
         const user = reactive({
-            age: 10
+            age: 10,
+            name: 'hi'
         })
         let nextAge;
         effect(() => {
@@ -14,7 +15,9 @@ describe('effect', () => {
         expect(nextAge).toBe(11)
         //update
         user.age += 1
+        user.name = "test"
         expect(nextAge).toBe(12)
+        expect(user.name).toBe("test")
     })
 
     it('should return runner when call effect', () => {
