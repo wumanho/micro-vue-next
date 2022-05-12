@@ -100,3 +100,13 @@ yarn test
 ## src/runtime-dom DOM 平台渲染器
 
 :star2: 支持自定义渲染器
+
+&nbsp;
+
+## src/compiler-core 编译器
+
+:star2: 编译插值语法
+
+:star2: 编译 element 元素
+
+:star2: 编译 text 文本
