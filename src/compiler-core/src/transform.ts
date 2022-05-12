@@ -3,6 +3,8 @@
  * @param root ast 的根节点
  * @param options 可选参数
  */
+import {NodeTypes} from "./ast";
+import {TO_DISPLAY_STRING} from "./runtimeHelpers";
 
 export function transform(root, options = {}) {
     // 创建全局上下文
@@ -11,6 +13,8 @@ export function transform(root, options = {}) {
     traverseNode(root, context)
     // 为 codegen 创建入口
     createRootCodegen(root)
+
+    context.root.helpers = [...context.helpers.keys()]
 }
 
 /**
@@ -19,10 +23,15 @@ export function transform(root, options = {}) {
  * @param options
  */
 function createTransformContext(root, options) {
-    return {
+    const context = {
         root,
-        nodeTransforms: options.nodeTransforms || []
+        nodeTransforms: options.nodeTransforms || [],
+        helpers: new Map(), // 存储所有处理器
+        helper(key) {  // 辅助设置到 root 的函数
+            context.helpers.set(key, 1)
+        }
     }
+    return context
 }
 
 /**
@@ -37,17 +46,25 @@ function traverseNode(node, context) {
         const transform = nodeTransforms[i]
         transform(node)
     }
-    // 抽取递归逻辑
-    traversChildren(node, context);
+    // 判断节点类型
+    switch (node.type) {
+        case NodeTypes.INTERPOLATION:
+            context.helper(TO_DISPLAY_STRING) // 通过 helper 方法添加处理器
+            break
+        case NodeTypes.ROOT:
+        case NodeTypes.ELEMENT:
+            // 抽取递归逻辑
+            traversChildren(node, context);
+            break
+    }
+
 }
 
 function traversChildren(node, context) {
     const children = node.children
-    if (children) {
-        for (let i = 0; i < children.length; i++) {
-            const node = children[i]
-            traverseNode(node, context)
-        }
+    for (let i = 0; i < children.length; i++) {
+        const node = children[i]
+        traverseNode(node, context)
     }
 }
 
