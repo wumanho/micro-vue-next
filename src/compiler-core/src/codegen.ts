@@ -104,10 +104,28 @@ function genExpression(node, context) {
 
 function genElement(node, context) {
     const {push, helper} = context
-    const {tag, children} = node
-    console.log("gen element_____", children)
-    const child = children[0]
-    push(`${helper(CREATE_ELEMENT_VNODE)}("${tag}"), null, `)
-    genNode(child, context)
+    const {tag, children, props} = node
+    push(`${helper(CREATE_ELEMENT_VNODE)}(`)
+    genNodeList(genNullable([tag, props, children]), context)
     push(")")
+}
+
+function genNodeList(nodes, context) {
+    const {push} = context
+    for (let i = 0; i < nodes.length; i++) {
+        const node = nodes[i]
+        if (isString(node)) {
+            push(node)
+        } else {
+            genNode(node, context)
+        }
+        if (i < node.length - 1) {
+            push(", ")
+        }
+    }
+}
+
+// false 值一律转换成 null
+function genNullable(args: any[]) {
+    return args.map((arg) => arg || "null")
 }

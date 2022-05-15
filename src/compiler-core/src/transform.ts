@@ -42,9 +42,11 @@ function createTransformContext(root, options) {
 function traverseNode(node, context) {
     // 取出所有插件，遍历执行
     const nodeTransforms = context.nodeTransforms
+    const exitFns: any = []
     for (let i = 0; i < nodeTransforms.length; i++) {
         const transform = nodeTransforms[i]
-        transform(node,context)
+        const onExit = transform(node, context)
+        if (onExit) exitFns.push(onExit)
     }
     // 判断节点类型
     switch (node.type) {
@@ -58,6 +60,10 @@ function traverseNode(node, context) {
             break
     }
 
+    let i = exitFns.length
+    while (i--) {
+        exitFns[i]()
+    }
 }
 
 function traversChildren(node, context) {
@@ -69,6 +75,11 @@ function traversChildren(node, context) {
 }
 
 function createRootCodegen(root) {
-    root.codegenNode = root.children[0]
+    const child = root.children[0]
+    if (child.type === NodeTypes.ELEMENT) {
+        root.codegenNode = child.codegenNode
+    } else {
+        root.codegenNode = root.children[0]
+    }
 }
 

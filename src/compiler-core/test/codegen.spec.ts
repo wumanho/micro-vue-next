@@ -30,9 +30,8 @@ describe("codegen", () => {
         const ast: any = baseParse("<div>hi,{{message}}</div>")
         // 生成 codegen 根
         transform(ast, {
-            nodeTransforms: [transformElement, transformText]
+            nodeTransforms: [transformExpression, transformElement, transformText]
         })
-        console.log(ast.codegenNode.children, '-----------------------codegen')
         //暂时不 transform
         const {code} = generate(ast)
         //将方法进行快照对比
