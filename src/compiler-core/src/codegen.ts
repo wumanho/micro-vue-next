@@ -1,5 +1,6 @@
 import {NodeTypes} from "./ast";
-import {helperMapName, TO_DISPLAY_STRING} from "./runtimeHelpers";
+import {CREATE_ELEMENT_VNODE, helperMapName, TO_DISPLAY_STRING} from "./runtimeHelpers";
+import {isString} from "../../shared";
 
 export function generate(ast) {
     const context = createCodegenContext()
@@ -21,6 +22,19 @@ export function generate(ast) {
     }
 }
 
+function genCompoundExpression(node, context) {
+    const children = node.children
+    const {push} = context
+    for (let i = 0; i < children.length; i++) {
+        const child = children[i]
+        if (isString(child)) {
+            push(child)
+        } else {
+            genNode(child, context)
+        }
+    }
+}
+
 /**
  * 生成关键的方法体
  * @param node node
@@ -36,6 +50,12 @@ function genNode(node, context) {
             break
         case NodeTypes.SIMPLE_EXPRESSION:
             genExpression(node, context)
+            break
+        case NodeTypes.ELEMENT:
+            genElement(node, context)
+            break
+        case NodeTypes.COMPOUND_EXPRESSION:
+            genCompoundExpression(node, context)
             break
     }
 }
@@ -80,4 +100,14 @@ function genInterpolation(node, context) {
 function genExpression(node, context) {
     const {push} = context
     push(`${node.content}`)
+}
+
+function genElement(node, context) {
+    const {push, helper} = context
+    const {tag, children} = node
+    console.log("gen element_____", children)
+    const child = children[0]
+    push(`${helper(CREATE_ELEMENT_VNODE)}("${tag}"), null, `)
+    genNode(child, context)
+    push(")")
 }

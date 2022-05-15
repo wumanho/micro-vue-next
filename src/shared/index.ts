@@ -3,6 +3,8 @@ export const isObject = (val: any) => val !== null && typeof val === 'object'
 export const hasChanged = (newVal, oldVal) => !Object.is(newVal, oldVal)
 export const hasOwn = (val, key) => Object.prototype.hasOwnProperty.call(val, key)
 export const EMPTY_OBJ = {}
+export const isString = (value) => typeof value === 'string'
+
 
 //先将 add-foo 事件格式转换为 addFoo格式
 export const camelize = (str: string) => {
