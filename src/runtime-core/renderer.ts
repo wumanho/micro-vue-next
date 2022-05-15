@@ -408,8 +408,8 @@ export function createRenderer(options) {
             if (!instance.isMounted) { // 初始化逻辑
                 const {proxy} = instance
                 //直接调用 instance 的 render() 获取到虚拟结点
-                //指定 this 为代理对象
-                const subTree = (instance.subTree = instance.render.call(proxy))
+                //指定 this 为代理对象,第二个参数是 _ctx
+                const subTree = (instance.subTree = instance.render.call(proxy,proxy))
                 //再次调用 patch，去处理元素的渲染
                 patch(null, subTree, container, instance, anchor)
                 //$el挂载，这次才是获取到初始化完成的 el
@@ -425,7 +425,7 @@ export function createRenderer(options) {
                     updateComponentPreRender(instance, next)
                 }
                 // 获取当前组件的 subTree 以及上一次的 subTree 用于 diff 对比的
-                const subTree = instance.render.call(proxy)
+                const subTree = instance.render.call(proxy,proxy)
                 const prevSubTree = instance.subTree
                 // 完事记录一下当前的 subTree
                 instance.subTree = subTree
