@@ -1,0 +1,16 @@
+{
+  "name": "micro-vue-next",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "@micro-vue-next/compiler-core": "workspace:^1.0.0",
+    "@micro-vue-next/runtime-dom": "workspace:^1.0.0"
+  }
+}

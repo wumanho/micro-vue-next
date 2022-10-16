@@ -1,0 +1,37 @@
+lockfileVersion: 5.4
+
+importers:
+
+  packages/compiler-core:
+    specifiers:
+      '@micro-vue-next/shared': workspace:^1.0.0
+    dependencies:
+      '@micro-vue-next/shared': link:../shared
+
+  packages/reactivity:
+    specifiers:
+      '@micro-vue-next/shared': workspace:^1.0.0
+    dependencies:
+      '@micro-vue-next/shared': link:../shared
+
+  packages/runtime-core:
+    specifiers:
+      '@micro-vue-next/reactivity': workspace:^1.0.0
+      '@micro-vue-next/shared': workspace:^1.0.0
+    dependencies:
+      '@micro-vue-next/reactivity': link:../reactivity
+      '@micro-vue-next/shared': link:../shared
+
+  packages/runtime-dom:
+    specifiers:
+      '@micro-vue-next/runtime-core': workspace:^1.0.0
+    dependencies:
+      '@micro-vue-next/runtime-core': link:../runtime-core
+
+  packages/vue:
+    specifiers:
+      '@micro-vue-next/compiler-core': workspace:^1.0.0
+      '@micro-vue-next/runtime-dom': workspace:^1.0.0
+    dependencies:
+      '@micro-vue-next/compiler-core': link:../compiler-core
+      '@micro-vue-next/runtime-dom': link:../runtime-dom
