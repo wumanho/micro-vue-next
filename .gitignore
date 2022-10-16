@@ -2,3 +2,8 @@
 /yarn.lock
 .idea
 .gitignore
+/packages/compiler-core/node_modules/
+/packages/reactivity/node_modules/
+/packages/runtime-core/node_modules/
+/packages/runtime-dom/node_modules/
+/packages/vue/node_modules/
