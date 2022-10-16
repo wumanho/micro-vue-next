@@ -1,6 +1,6 @@
-import {reactive} from "../src/reactive";
+import {reactive} from "../src";
 import {computed} from "../src/computed";
-import {effect} from "../src/effect";
+import {vi} from 'vitest'
 
 describe("computed", () => {
     it("happy path", () => {
@@ -16,7 +16,7 @@ describe("computed", () => {
         const value = reactive({
             foo: 1,
         })
-        const getter = jest.fn(() => value.foo)
+        const getter = vi.fn(() => value.foo)
         const cValue = computed(getter)
         // lazy
         expect(getter).not.toHaveBeenCalled()
